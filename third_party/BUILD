@@ -59,6 +59,11 @@ java_import(
 )
 
 java_import(
+    name = "gson_proto",
+    jars = ["gson_proto/gson-proto-0.5.jar"],
+)
+
+java_import(
     name = "guava",
     jars = ["guava/guava-18.0.jar"],
 )
