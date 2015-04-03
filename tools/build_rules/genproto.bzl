@@ -31,6 +31,7 @@ def java_compile_command(ctx, classdir, classpath, output):
 
 def genproto_impl(ctx):
   src = ctx.file.src
+  deps = ctx.targets.deps
   proto_compiler = ctx.file._proto_compiler
   proto_dep = ctx.file._proto_dep
   class_jar = ctx.outputs.java
@@ -38,8 +39,14 @@ def genproto_impl(ctx):
   build_output = class_jar.path + ".build_output"
   build_output = class_jar.path + ".build_output"
 
-  inputs = [src, proto_dep, proto_compiler]
+  proto_paths = set([src])
+  inputs = [proto_dep, proto_compiler]
   proto_compiler_path = proto_compiler.path
+
+  for dep in deps:
+    proto_paths += dep.proto_srcs
+
+  inputs += list(proto_paths)
 
   javapath = "tools/jdk/jdk/bin/"
   cmd = ("set -e;" +
@@ -48,7 +55,7 @@ def genproto_impl(ctx):
          "rm -rf " + build_output + ";" +
          "mkdir " + build_output + "\n" +
          proto_compiler_path + " --java_out=" +
-         proto_output +" " + src.path + "\n" +
+         proto_output + " " + cmd_helper.join_paths(" ", proto_paths) + "\n" +
          "JAVA_FILES=$(find " + proto_output + " -name '*.java')\n" +
          java_compile_command(ctx, build_output, proto_dep.path, class_jar.path))
 
@@ -59,7 +66,8 @@ def genproto_impl(ctx):
       command = cmd,
       use_default_shell_env = True)
 
-  return struct(compile_time_jars = set([class_jar]),
+  return struct(proto_srcs = set([src]),
+                compile_time_jars = set([class_jar]),
                 runtime_jars = set([class_jar, proto_dep], order="link"))
 
 
@@ -68,6 +76,7 @@ genproto = rule(genproto_impl,
    # set. Skylark needs a bit of improvement first (concat structs).
    attrs = {
        "src": attr.label(allow_files=proto_filetype, single_file=True),
+       "deps": attr.label_list(allow_files=False, providers=["proto_srcs"]),
        # TODO(bazel-team): this should be a hidden attribute with a default
        # value, but Skylark needs to support select first.
        "_proto_compiler": attr.label(
