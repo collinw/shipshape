@@ -24,8 +24,8 @@ genproto(
 )
 
 genproto(
-     name = "cxx_proto_java",
-     src = "cxx.proto",
+    name = "cxx_proto_java",
+    src = "cxx.proto",
 )
 
 genproto(

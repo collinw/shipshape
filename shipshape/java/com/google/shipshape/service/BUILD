@@ -16,10 +16,10 @@ java_library(
         "//shipshape/proto:shipshape_rpc_proto",
         "//third_party:guava",
         "//third_party:jsr305",
+        "//third_party:protobuf",
         "//third_party/kythe/java/com/google/devtools/kythe/common",
         "//third_party/kythe/proto:analysis_proto",
         "//third_party/openjdk/lib:tools_jar",
-        "//third_party:protobuf",
     ],
 )
 
@@ -29,6 +29,7 @@ java_binary(
         "JavacService.java",
         "JavacStateBuilder.java",
     ],
+    main_class = "com.google.shipshape.service.JavacService",
     deps = [
         ":api",
         "//shipshape/java/com/google/shipshape/analyzers",
@@ -36,8 +37,9 @@ java_binary(
         "//shipshape/proto:shipshape_context_proto",
         "//shipshape/proto:shipshape_rpc_proto",
         "//third_party:guava",
-        "//third_party/jcommander",
         "//third_party:jsr305",
+        "//third_party:protobuf",
+        "//third_party/jcommander",
         "//third_party/kythe/java/com/google/devtools/kythe/common",
         "//third_party/kythe/java/com/google/devtools/kythe/extractors/shared",
         "//third_party/kythe/java/com/google/devtools/kythe/platform/java",
@@ -45,7 +47,5 @@ java_binary(
         "//third_party/kythe/proto:analysis_proto",
         "//third_party/kythe/proto:storage_proto",
         "//third_party/openjdk/lib:tools_jar",
-        "//third_party:protobuf",
     ],
-    main_class = "com.google.shipshape.service.JavacService",
 )

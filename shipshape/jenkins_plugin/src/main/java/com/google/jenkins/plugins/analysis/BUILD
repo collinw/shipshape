@@ -15,6 +15,7 @@ java_library(
         "//shipshape/proto:source_context_proto",
         "//shipshape/proto:textrange_proto",
         "//third_party:guava",
+        "//third_party:protobuf",
         "//third_party/jenkins:access-modifier-annotation",
         "//third_party/jenkins:bridge-method-annotation",
         "//third_party/jenkins:bytecode-compatibility-transformer",
@@ -23,6 +24,5 @@ java_library(
         "//third_party/jenkins:remoting",
         "//third_party/jenkins:servlet-api",
         "//third_party/jenkins:stapler",
-        "//third_party:protobuf",
     ],
 )

@@ -13,13 +13,13 @@ java_library(
         "//shipshape/proto:shipshape_context_proto",
         "//shipshape/proto:source_context_proto",
         "//shipshape/proto:textrange_proto",
-        "//third_party/error-prone",
         "//third_party:guava",
         "//third_party:jsr305",
+        "//third_party:protobuf",
+        "//third_party/error-prone",
         "//third_party/kythe/java/com/google/devtools/kythe/platform/java",
         "//third_party/kythe/proto:analysis_proto_java",
         "//third_party/kythe/proto:storage_proto_java",
         "//third_party/openjdk/lib:tools_jar",
-        "//third_party:protobuf"
     ],
 )
