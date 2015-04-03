@@ -11,6 +11,7 @@ MANIFEST-*
 *~
 .#*
 \#*#
+*.swp
 
 # Binary files
 *.class
