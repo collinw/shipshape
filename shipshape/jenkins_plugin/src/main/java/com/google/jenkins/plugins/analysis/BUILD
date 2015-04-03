@@ -1,23 +1,20 @@
-[
-  {
-    "name": "shipshape",
-    "kind": "java_library",
-    "inputs": {
-      "srcs": [
+java_library(
+    name = "shipshape",
+    srcs = [
         "AnalysisRunner.java",
         "ShipshapeException.java",
         "ShipshapeSlave.java",
         "ShipshapeStreamLogger.java",
-        "StreamBufferHandler.java"
-      ],
-      "jars": [
+        "StreamBufferHandler.java",
+    ],
+    deps = [
         "//shipshape/java/com/google/shipshape/util/rpc:client",
         "//shipshape/proto:note_proto",
         "//shipshape/proto:shipshape_context_proto",
         "//shipshape/proto:shipshape_rpc_proto",
         "//shipshape/proto:source_context_proto",
         "//shipshape/proto:textrange_proto",
-        "//third_party/guava",
+        "//third_party:guava",
         "//third_party/jenkins:access-modifier-annotation",
         "//third_party/jenkins:bridge-method-annotation",
         "//third_party/jenkins:bytecode-compatibility-transformer",
@@ -26,8 +23,6 @@
         "//third_party/jenkins:remoting",
         "//third_party/jenkins:servlet-api",
         "//third_party/jenkins:stapler",
-        "//third_party/protobuf:protobuf_jar"
-      ]
-    }
-  }
-]
+        "//third_party:protobuf",
+    ],
+)

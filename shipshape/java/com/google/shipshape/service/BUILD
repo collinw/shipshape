@@ -1,48 +1,43 @@
-[
-  {
-    "name": "api",
-    "kind": "java_library",
-    "inputs": {
-      "srcs": [
+java_library(
+    name = "api",
+    srcs = [
         "Analyzer.java",
         "AnalyzerException.java",
         "AnalyzerStateBuilder.java",
         "JavaDispatcher.java",
         "ShipshapeLogger.java",
-        "StatelessAnalyzer.java"
-      ],
-      "jars": [
+        "StatelessAnalyzer.java",
+    ],
+    deps = [
         "//shipshape/java/com/google/shipshape/util/rpc:protocol",
         "//shipshape/java/com/google/shipshape/util/rpc:server",
         "//shipshape/proto:note_proto",
         "//shipshape/proto:shipshape_context_proto",
         "//shipshape/proto:shipshape_rpc_proto",
-        "//third_party/guava",
-        "//third_party/jsr305_annotations:jsr305",
+        "//third_party:guava",
+        "//third_party:jsr305",
         "//third_party/kythe/java/com/google/devtools/kythe/common",
         "//third_party/kythe/proto:analysis_proto",
         "//third_party/openjdk/lib:tools_jar",
-        "//third_party/protobuf:protobuf_jar"
-      ]
-    }
-  },
-  {
-    "name": "javac_dispatcher",
-    "kind": "java_binary",
-    "inputs": {
-      "srcs": [
+        "//third_party:protobuf",
+    ],
+)
+
+java_binary(
+    name = "javac_dispatcher",
+    srcs = [
         "JavacService.java",
-        "JavacStateBuilder.java"
-      ],
-      "jars": [
+        "JavacStateBuilder.java",
+    ],
+    deps = [
         ":api",
         "//shipshape/java/com/google/shipshape/analyzers",
         "//shipshape/java/com/google/shipshape/util/rpc:server",
         "//shipshape/proto:shipshape_context_proto",
         "//shipshape/proto:shipshape_rpc_proto",
-        "//third_party/guava",
+        "//third_party:guava",
         "//third_party/jcommander",
-        "//third_party/jsr305_annotations:jsr305",
+        "//third_party:jsr305",
         "//third_party/kythe/java/com/google/devtools/kythe/common",
         "//third_party/kythe/java/com/google/devtools/kythe/extractors/shared",
         "//third_party/kythe/java/com/google/devtools/kythe/platform/java",
@@ -50,23 +45,7 @@
         "//third_party/kythe/proto:analysis_proto",
         "//third_party/kythe/proto:storage_proto",
         "//third_party/openjdk/lib:tools_jar",
-        "//third_party/protobuf:protobuf_jar"
-      ]
-    },
-    "properties": {
-      "main_class": "com.google.shipshape.service.JavacService"
-    }
-  },
-  {
-    "name": "javac_dispatcher_deploy",
-    "kind": "java_deploy_jar",
-    "inputs": {
-      "jars": [
-        ":javac_dispatcher"
-      ]
-    },
-    "properties": {
-      "main_class": "com.google.shipshape.service.JavacService"
-    }
-  }
-]
+        "//third_party:protobuf",
+    ],
+    main_class = "com.google.shipshape.service.JavacService",
+)
