@@ -28,17 +28,21 @@ CONVOY_URL='gcr.io'
 LOCAL_WORKSPACE='/tmp/shipshape-tests'
 LOG_FILE='end_to_end_test.log'
 REPO=$CONVOY_URL/shipshape_releases
+KYTHE_TEST='false'
 CONTAINERS=(
   //shipshape/docker:service
   //shipshape/androidlint_analyzer/docker:android_lint
 )
 
 # Check tag argument.
-[[ "$#" == 1 ]] || { echo "Usage: ./end-to-end-test.sh <TAG>" 1>&2 ; exit 1; }
+[[ "$#" == 1 ]] || [[ "$#" == 2 ]] || { echo "Usage: ./end-to-end-test.sh <TAG> [IS_KYTHE_TEST]" 1>&2 ; exit 1; }
 
 TAG=${1,,} # make lower case
 IS_LOCAL_RUN=false; [[ "$TAG" == "local" ]] && IS_LOCAL_RUN=true
 echo $IS_LOCAL_RUN
+
+[[ "$#" == 2 ]] && KYTHE_TEST=${2,,}
+echo $KYTHE_TEST
 
 # Build repo in local mode
 if [[ "$IS_LOCAL_RUN" == true ]]; then
@@ -51,7 +55,7 @@ if [[ "$IS_LOCAL_RUN" == true ]]; then
     IFS=':' # Set global string separator so we can split the image name
     names=(${container[@]})
     name=${names[1]}
-    docker tag $name:$TAG $REPO/$name:$TAG
+    docker tag -f $name:$TAG $REPO/$name:$TAG
     IFS=' ' # reset it back to a space
   done
 fi
@@ -97,14 +101,14 @@ EOF
 
 # Run CLI over the new repo
 echo "---- Running CLI over test repo" &>> $LOG_FILE
-$CAMPFIRE_OUT/bin/shipshape/cli/shipshape --tag=$TAG --categories='PostMessage,JSHint,ErrorProne' --build=maven --stderrthreshold=INFO $LOCAL_WORKSPACE >> $LOG_FILE
+$CAMPFIRE_OUT/bin/shipshape/cli/shipshape --tag=$TAG --categories='PostMessage,JSHint,ErrorProne' --build=maven --stderrthreshold=INFO --local_kythe=$KYTHE_TEST $LOCAL_WORKSPACE >> $LOG_FILE
 echo "Analysis complete, checking results..."
 # Run a second time for AndroidLint. We have to do this separately because
 # otherwise kythe will try to build all the java files, even the ones that maven
 # doesn't build.
 cp -r $BASE_DIR/shipshape/androidlint_analyzer/test_data/TicTacToeLib $LOCAL_WORKSPACE/
 echo "---- Running CLI over test repo, android test" &>> $LOG_FILE
-$CAMPFIRE_OUT/bin/shipshape/cli/shipshape --tag=$TAG --analyzer_images=$REPO/android_lint:$TAG --categories='AndroidLint' --stderrthreshold=INFO $LOCAL_WORKSPACE >> $LOG_FILE
+$CAMPFIRE_OUT/bin/shipshape/cli/shipshape --tag=$TAG --analyzer_images=$REPO/android_lint:$TAG --categories='AndroidLint' --stderrthreshold=INFO --local_kythe=$KYTHE_TEST $LOCAL_WORKSPACE >> $LOG_FILE
 echo "Analysis complete, checking results..."
 
 # Quick sanity checks of output.
@@ -113,12 +117,14 @@ POSTMESSAGE_COUNT=$(grep PostMessage $LOG_FILE | wc -l)
 ERRORPRONE_COUNT=$(grep ErrorProne $LOG_FILE | wc -l)
 ANDROIDLINT_COUNT=$(grep AndroidLint $LOG_FILE | wc -l)
 FAILURE_COUNT=$(grep Failure $LOG_FILE | wc -l)
-[[ $JSHINT_COUNT == 8 ]] || { echo "Wrong number of JSHint results, expected 8, found $JSHINT_COUNT" 1>&2 ; exit 1; }
-[[ $POSTMESSAGE_COUNT == 1 ]] || { echo "Wrong number of PostMessage results, expected 1, found $POSTMESSAGE_COUNT" 1>&2 ; exit 1; }
-[[ $ERRORPRONE_COUNT == 2 ]] || { echo "Wrong number of ErrorProne results, expected 2, found $ERRORPRONE_COUNT" 1>&2 ; exit 1; }
-[[ $ANDROIDLINT_COUNT == 8 ]] || { echo "Wrong number of AndroidLint results, expected 9, found $ANDROIDLINT_COUNT" 1>&2 ; exit 1; }
-[[ $FAILURE_COUNT == 0 ]] || { echo "Some analyses failed; please check $LOG_FILE" 1>&2 ; exit 1; }
+TEST_STATUS=0
+[[ $JSHINT_COUNT == 8 ]] || { echo "Wrong number of JSHint results, expected 8, found $JSHINT_COUNT" 1>&2 ; TEST_STATUS=1; }
+[[ $POSTMESSAGE_COUNT == 1 ]] || { echo "Wrong number of PostMessage results, expected 1, found $POSTMESSAGE_COUNT" 1>&2 ; TEST_STATUS=1; }
+[[ $ERRORPRONE_COUNT == 2 ]] || { echo "Wrong number of ErrorProne results, expected 2, found $ERRORPRONE_COUNT" 1>&2 ; TEST_STATUS=1; }
+[[ $ANDROIDLINT_COUNT == 8 ]] || { echo "Wrong number of AndroidLint results, expected 9, found $ANDROIDLINT_COUNT" 1>&2 ; TEST_STATUS=1; }
+[[ $FAILURE_COUNT == 0 ]] || { echo "Some analyses failed; please check $LOG_FILE" 1>&2 ; TEST_STATUS=1; }
 
-echo "Success! Analyzer produced expected number of results. Full output in $LOG_FILE"
-
-exit 0
+if [[ $TEST_STATUS -eq 0 ]]; then
+  echo "Success! Analyzer produced expected number of results. Full output in $LOG_FILE"
+fi
+exit $(($TEST_STATUS))
