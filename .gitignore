@@ -24,6 +24,7 @@ MANIFEST-*
 /doxygen-out
 *.ninja*
 bazel-*
+third_party/go_tools/go_root
 
 # Misc
 node_modules

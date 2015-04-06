@@ -238,7 +238,7 @@ go_library_attrs = {
           "transitive_go_library_object",
         ]),
     "go_root": attr.label(
-        default=Label("//tools/go:go_root"),
+        default=Label("//third_party/go_tools:go_root"),
         allow_files=True,
         cfg=HOST_CFG),
     "library": attr.label(
@@ -268,7 +268,7 @@ go_test = rule(
     test = True,
     attrs = go_library_attrs + {
       "test_generator": attr.label(
-          default=Label("//tools/go:generate_test_main"),
+          default=Label("//third_party/go_tools:generate_test_main"),
           cfg=HOST_CFG, flags=["EXECUTABLE"]),
       # TODO(bazel-team): implement support for args and defines_main.
       "args": attr.string_list(),
