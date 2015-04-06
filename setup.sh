@@ -12,17 +12,16 @@ if [ -z "$BAZEL_DIR" ]; then
 fi
 BAZEL_DIR=$(get_abs_filename $BAZEL_DIR)
 
-if [ ! -d tools ]; then
-    echo "Configuring workspace to use Bazel from $BAZEL_DIR"
-    ln -s $BAZEL_DIR/tools tools
-else
-    echo "Using Bazel tools dir in tools/"
-fi 
-
-if [ ! -e third_party/go_tools/go_root ]; then
-    GOROOT=$(go env GOROOT)
-    echo "Configuring Bazel go support to use $GOROOT"
-    ln -s $GOROOT third_party/go_tools/go_root
-else
-    echo "Using Bazel go support in third_party/go_tools/go_root"
+echo "Configuring workspace to use Bazel from $BAZEL_DIR"
+if [ -e tools ]; then
+	rm tools
 fi
+ln -s $BAZEL_DIR/tools tools
+
+echo "Configuring Bazel go support to use $GOROOT"
+TARGET=third_party/go_tools/go_root
+if [ -e $TARGET ]; then
+    rm $TARGET
+fi
+GOROOT=$(go env GOROOT)
+ln -s $GOROOT $TARGET
