@@ -1,11 +1,16 @@
 #!/bin/bash -eu
 
+get_abs_filename() {
+  # $1 : relative filename
+  echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+}
+
 BAZEL_DIR=$1
 if [ -z "$BAZEL_DIR" ]; then
     echo "Must specify a path to a Bazel directory"
     exit 1
 fi
-BAZEL_DIR=$(readlink -e $BAZEL_DIR)
+BAZEL_DIR=$(get_abs_filename $BAZEL_DIR)
 
 if [ ! -d tools ]; then
     echo "Configuring workspace to use Bazel from $BAZEL_DIR"
@@ -15,10 +20,7 @@ else
 fi 
 
 if [ ! -e third_party/go_tools/go_root ]; then
-    if [ -z "$GOROOT" ]; then
-        GOROOT=$(go env GOROOT)
-    fi
-
+    GOROOT=$(go env GOROOT)
     echo "Configuring Bazel go support to use $GOROOT"
     ln -s $GOROOT third_party/go_tools/go_root
 else
