@@ -25,6 +25,7 @@ MANIFEST-*
 *.ninja*
 bazel-*
 third_party/go_tools/go_root
+tools
 
 # Misc
 node_modules
