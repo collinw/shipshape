@@ -18,10 +18,10 @@ if [ -e tools ]; then
 fi
 ln -s $BAZEL_DIR/tools tools
 
+GOROOT=$(go env 'GOROOT')
 echo "Configuring Bazel go support to use $GOROOT"
 TARGET=third_party/go_tools/go_root
 if [ -e $TARGET ]; then
     rm $TARGET
 fi
-GOROOT=$(go env GOROOT)
 ln -s $GOROOT $TARGET
